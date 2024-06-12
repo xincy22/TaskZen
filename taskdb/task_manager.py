@@ -4,6 +4,7 @@ import subprocess
 from datetime import datetime
 from .priority import Priority
 from config import DATABASE_PATH, DESCRIPTION_DIR
+from notifier.task_notifier import TaskNotifier
 
 class TaskManager:
     """
@@ -16,6 +17,7 @@ class TaskManager:
         """
         self.db_name = DATABASE_PATH
         self.description_dir = DESCRIPTION_DIR
+        self.task_notifier = TaskNotifier()
         self._create_table()
 
     def _create_table(self):
@@ -109,7 +111,10 @@ class TaskManager:
         
         conn.commit()
         conn.close()
-        
+    
+        # Set notifications for the new task
+        self.task_notifier.set_task_notifications(task_id, name, due_date)
+    
         return task_id
 
     def get_tasks(self):
@@ -145,12 +150,19 @@ class TaskManager:
         conn = sqlite3.connect(self.db_name)
         c = conn.cursor()
         
+        # Retrieve the current name and due_date before updating
+        c.execute("SELECT name, due_date FROM tasks WHERE id=?", (task_id,))
+        current_name, current_due_date = c.fetchone()
+        
         # Update the task without changing the description file
         c.execute("UPDATE tasks SET name=?, priority=?, due_date=? WHERE id=?", 
-                  (name, str(priority), due_date, task_id))
+                (name, str(priority), due_date, task_id))
         
         conn.commit()
         conn.close()
+        
+        # Update notifications for the updated task
+        self.task_notifier.update_task_notifications(task_id, current_name, current_due_date, name, due_date)
 
     def delete_task(self, task_id):
         """
@@ -159,13 +171,20 @@ class TaskManager:
         Parameters:
         task_id (int): The ID of the task to delete.
         """
-        
-        # Delete the associated description file
+
         conn = sqlite3.connect(self.db_name)
         c = conn.cursor()
-        c.execute("SELECT description_file FROM tasks WHERE id=?", (task_id,))
-        description_file = c.fetchone()[0]
         
+        # Retrieve the current name and due_date before deleting
+        c.execute("SELECT name, due_date, description_file FROM tasks WHERE id=?", (task_id,))
+        result = c.fetchone()
+        if result is None:
+            conn.close()
+            return  # Task not found
+        
+        current_name, current_due_date, description_file = result
+        
+        # Delete the associated description file
         if description_file and os.path.exists(description_file):
             os.remove(description_file)
 
@@ -173,6 +192,9 @@ class TaskManager:
         c.execute("DELETE FROM tasks WHERE id=?", (task_id,))
         conn.commit()
         conn.close()
+        
+        # Delete notifications for the deleted task
+        self.task_notifier.delete_task_notifications(task_id, current_name, current_due_date)
 
     def open_description_file(self, task_id):
         """
