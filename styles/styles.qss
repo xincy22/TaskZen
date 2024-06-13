@@ -34,25 +34,6 @@ QDateTimeEdit {
     padding: 5px;
     border-radius: 5px;
 }
-QDateTimeEdit::up-button, QDateTimeEdit::down-button {
-    subcontrol-origin: border;
-    subcontrol-position: top right; /* position at the top right */
-    width: 16px; /* width of the button */
-    border-left: 1px solid #dddddd; /* left border */
-}
-QDateTimeEdit::down-button {
-    subcontrol-position: bottom right; /* position at the bottom right */
-}
-QDateTimeEdit::up-arrow, QDateTimeEdit::down-arrow {
-    width: 10px; /* width of the arrow */
-    height: 10px; /* height of the arrow */
-}
-QDateTimeEdit::up-arrow {
-    image: url(:/styles/uparrow.jpg); /* path to up arrow image */
-}
-QDateTimeEdit::down-arrow {
-    image: url(:/styles/downarrow.jpg); /* path to down arrow image */
-}
 QPushButton {
     background-color: #4CAF50;
     color: white;

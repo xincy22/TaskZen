@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLineEdit, QDateTimeEdit, QPushButton
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLineEdit, QDateTimeEdit, QPushButton, QCalendarWidget
 from PyQt5.QtCore import QDateTime
 from PyQt5.QtCore import Qt
 from taskdb import Priority
@@ -23,6 +23,9 @@ class TaskFormWidget(QWidget):
 
         self.due_date_input = QDateTimeEdit(QDateTime.currentDateTime())
         self.due_date_input.setDisplayFormat('yyyy-MM-dd HH:mm')
+        self.due_date_input.setCalendarPopup(True)  # Enable calendar popup
+        calendar = QCalendarWidget(self)
+        self.due_date_input.setCalendarWidget(calendar)
         form_layout.addWidget(self.due_date_input)
 
         self.add_button = QPushButton('Add Task')
