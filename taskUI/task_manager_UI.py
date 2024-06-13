@@ -31,16 +31,15 @@ class TaskManagerUI(QMainWindow):
 
         # Main layout
         main_layout = QVBoxLayout()
-        main_layout.setSpacing(10)  # Set spacing between widgets
-        main_layout.setContentsMargins(10, 10, 10, 10)  # Set margins around the layout
-
-        # Task list widget
-        self.task_list_widget = TaskListWidget(self)
-        main_layout.addWidget(self.task_list_widget)
+        main_layout.setSpacing(5)  # Reduce spacing between widgets
+        main_layout.setContentsMargins(5, 5, 5, 5)  # Reduce margins around the layout
 
         # Task form widget
         self.task_form_widget = TaskFormWidget(self)
         main_layout.addWidget(self.task_form_widget)
+        # Task list widget
+        self.task_list_widget = TaskListWidget(self)
+        main_layout.addWidget(self.task_list_widget)
 
         # Container widget
         container = QWidget()
@@ -93,11 +92,9 @@ class TaskManagerUI(QMainWindow):
         if event.button() == Qt.LeftButton:
             item = self.task_list_widget.itemAt(event.pos())
             if item is None:
-                # Clicked on empty area of the task list
                 self.reset_to_add_mode()
 
     def reset_to_add_mode(self):
-        # Clear input fields and reset to add mode
         if not self.is_add_mode:
             # Clear input fields
             self.task_form_widget.clear_inputs()
@@ -115,7 +112,7 @@ class TaskManagerUI(QMainWindow):
         """
         Apply flat design styles to the UI components.
         """
-        with open(STYLE_PATH, "r") as file:
+        with open(STYLE_PATH, "r", encoding="utf-8") as file:
             style_sheet = file.read()
             self.setStyleSheet(style_sheet)
 

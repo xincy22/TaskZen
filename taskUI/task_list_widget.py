@@ -7,7 +7,6 @@ class TaskListWidget(QListWidget):
         self.parent = parent
         self.itemClicked.connect(self.parent.on_task_clicked)
         self.itemDoubleClicked.connect(self.parent.on_task_double_clicked)
-        print(f"TaskListWidget initialized with parent: {self.parent}")
 
     def load_tasks(self):
         self.clear()

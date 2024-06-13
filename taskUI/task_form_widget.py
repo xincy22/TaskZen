@@ -10,8 +10,8 @@ class TaskFormWidget(QWidget):
 
         # Form layout for adding/updating tasks
         form_layout = QHBoxLayout()
-        form_layout.setSpacing(5)  # Set spacing between widgets in the form layout
-        form_layout.setContentsMargins(0, 0, 0, 0)  # Set margins around the form layout
+        form_layout.setSpacing(2)  # Reduce spacing between widgets in the form layout
+        form_layout.setContentsMargins(0, 0, 0, 0)  # Remove margins around the form layout
 
         self.name_input = QLineEdit()
         self.name_input.setPlaceholderText('Task Name')
