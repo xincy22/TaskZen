@@ -64,7 +64,9 @@ class TaskManager:
         try:
             due_date_obj = datetime.strptime(due_date, "%Y-%m-%d %H:%M")
             month = due_date_obj.strftime("%B")
-            filename = f"{task_id}_{month}.md"
+            # Remove any characters from name that are not allowed in filenames and replace spaces with underscores
+            sanitized_name = "".join(c for c in name if c.isalnum() or c in (' ', '_', '-')).rstrip().replace(' ', '_')
+            filename = f"{task_id}_{sanitized_name}_{month}.md"
             filepath = os.path.join(self.description_dir, filename)
             
             print(f"Creating description file at: {filepath}")  # Debug information
@@ -146,21 +148,21 @@ class TaskManager:
         """
         if not isinstance(priority, Priority):
             raise ValueError("priority must be an instance of Priority enum")
-        
+    
         conn = sqlite3.connect(self.db_name)
         c = conn.cursor()
-        
+    
         # Retrieve the current name and due_date before updating
         c.execute("SELECT name, due_date FROM tasks WHERE id=?", (task_id,))
         current_name, current_due_date = c.fetchone()
-        
+    
         # Update the task without changing the description file
         c.execute("UPDATE tasks SET name=?, priority=?, due_date=? WHERE id=?", 
                 (name, str(priority), due_date, task_id))
-        
+    
         conn.commit()
         conn.close()
-        
+    
         # Update notifications for the updated task
         self.task_notifier.update_task_notifications(task_id, current_name, current_due_date, name, due_date)
 
@@ -174,16 +176,16 @@ class TaskManager:
 
         conn = sqlite3.connect(self.db_name)
         c = conn.cursor()
-        
+    
         # Retrieve the current name and due_date before deleting
         c.execute("SELECT name, due_date, description_file FROM tasks WHERE id=?", (task_id,))
         result = c.fetchone()
         if result is None:
             conn.close()
             return  # Task not found
-        
+    
         current_name, current_due_date, description_file = result
-        
+    
         # Delete the associated description file
         if description_file and os.path.exists(description_file):
             os.remove(description_file)
@@ -192,7 +194,7 @@ class TaskManager:
         c.execute("DELETE FROM tasks WHERE id=?", (task_id,))
         conn.commit()
         conn.close()
-        
+    
         # Delete notifications for the deleted task
         self.task_notifier.delete_task_notifications(task_id, current_name, current_due_date)
 
@@ -203,12 +205,12 @@ class TaskManager:
         Parameters:
         task_id (int): The ID of the task whose description file should be opened.
         """
-        
+    
         conn = sqlite3.connect(self.db_name)
         c = conn.cursor()
         c.execute("SELECT description_file FROM tasks WHERE id=?", (task_id,))
         description_file = c.fetchone()[0]
-        
+    
         if description_file and os.path.exists(description_file):
             if os.name == 'nt':  # Windows
                 os.startfile(description_file)
