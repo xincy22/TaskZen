@@ -3,9 +3,10 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLi
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import QIcon
 from taskdb import TaskManager
-from tray_icon import TrayIcon
-from task_list_widget import TaskListWidget
-from task_form_widget import TaskFormWidget
+from .tray_icon import TrayIcon
+from .task_list_widget import TaskListWidget
+from .task_form_widget import TaskFormWidget
+from config import ICON_PATH
 
 class TaskManagerUI(QMainWindow):
     def __init__(self):
@@ -26,7 +27,7 @@ class TaskManagerUI(QMainWindow):
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         # Set window icon
-        self.setWindowIcon(QIcon("taskZen.ico"))
+        self.setWindowIcon(QIcon(ICON_PATH))
 
         # Main layout
         main_layout = QVBoxLayout()
@@ -69,31 +70,31 @@ class TaskManagerUI(QMainWindow):
         self.task_form_widget.on_task_double_clicked()
 
     def mousePressEvent(self, event):
-         if event.button() == Qt.LeftButton:
-             self.old_pos = event.globalPos()
+        if event.button() == Qt.LeftButton:
+            self.old_pos = event.globalPos()
 
     def mouseMoveEvent(self, event):
-         if event.buttons() == Qt.LeftButton and self.old_pos:
-             delta = QPoint(event.globalPos() - self.old_pos)
-             self.move(self.x() + delta.x(), self.y() + delta.y())
-             self.old_pos = event.globalPos()
+        if event.buttons() == Qt.LeftButton and self.old_pos:
+            delta = QPoint(event.globalPos() - self.old_pos)
+            self.move(self.x() + delta.x(), self.y() + delta.y())
+            self.old_pos = event.globalPos()
 
     def mouseReleaseEvent(self, event):
-         if event.button() == Qt.LeftButton:
-             clicked_item = QApplication.widgetAt(event.globalPos())
-             if not isinstance(clicked_item, QListWidget) and not isinstance(clicked_item.parent(), QListWidget):
-                 # Clicked outside the task list or on an empty area of the list
-                 if not self.is_add_mode:
-                     self.reset_to_add_mode()
+        if event.button() == Qt.LeftButton:
+            clicked_item = QApplication.widgetAt(event.globalPos())
+            if not isinstance(clicked_item, QListWidget) and not isinstance(clicked_item.parent(), QListWidget):
+                # Clicked outside the task list or on an empty area of the list
+                if not self.is_add_mode:
+                    self.reset_to_add_mode()
 
     def eventFilter(self, source, event):
-         if event.type() == event.MouseButtonPress and source is self.task_list_widget.viewport():
-             item = self.task_list_widget.itemAt(event.pos())
-             if item is None:
-                 # Clicked on empty area of the task list
-                 if not self.is_add_mode:
-                     self.reset_to_add_mode()
-         return super().eventFilter(source, event)
+        if event.type() == event.MouseButtonPress and source is self.task_list_widget.viewport():
+            item = self.task_list_widget.itemAt(event.pos())
+            if item is None:
+                # Clicked on empty area of the task list
+                if not self.is_add_mode:
+                    self.reset_to_add_mode()
+        return super().eventFilter(source, event)
 
     def reset_to_add_mode(self):
         # Clear input fields and reset to add mode

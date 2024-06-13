@@ -9,5 +9,7 @@ DATABASE_PATH = os.path.join(BASE_DIR, 'taskdb', 'tasks.db')
 # 任务解释文件路径
 DESCRIPTION_DIR = os.path.join(BASE_DIR, 'descriptions')
 
+ICON_PATH = os.path.join(BASE_DIR, 'taskUI', 'taskZen.ico')
+
 # 确保描述文件目录存在
 os.makedirs(DESCRIPTION_DIR, exist_ok=True)

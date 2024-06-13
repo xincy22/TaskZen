@@ -5,7 +5,8 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QWidget, QP
 from PyQt5.QtCore import QDateTime, Qt, QPoint
 from PyQt5.QtGui import QIcon
 from taskdb import TaskManager, Priority
-from .tray_icon import TrayIcon
+from taskUI import TrayIcon
+from config import ICON_PATH
 
 class TaskManagerUI(QMainWindow):
     def __init__(self):
@@ -26,7 +27,7 @@ class TaskManagerUI(QMainWindow):
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         # Set window icon
-        self.setWindowIcon(QIcon("taskZen.ico"))
+        self.setWindowIcon(QIcon(ICON_PATH))
 
         # Main layout
         main_layout = QVBoxLayout()

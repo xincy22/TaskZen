@@ -4,7 +4,7 @@ import subprocess
 from datetime import datetime
 from .priority import Priority
 from config import DATABASE_PATH, DESCRIPTION_DIR
-from notifier.task_notifier import TaskNotifier
+from notifier import TaskNotifier
 
 class TaskManager:
     """

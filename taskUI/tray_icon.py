@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon
 
 class TrayIcon(QSystemTrayIcon):
     def __init__(self, parent=None):
-        super().__init__(QIcon("taskZen.ico"), parent)
+        super().__init__(QIcon("taskUI/taskZen.ico"), parent)
         
         # Create tray menu
         tray_menu = QMenu(parent)
