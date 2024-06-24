@@ -17,3 +17,7 @@ STYLE_PATH = os.path.join(BASE_DIR, 'styles', 'styles.qss')
 
 # 确保描述文件目录存在
 os.makedirs(DESCRIPTION_DIR, exist_ok=True)
+
+# 模型缓存目录
+MODEL_CACHE_DIR = os.path.join(BASE_DIR, 'model_cache')
+os.makedirs(MODEL_CACHE_DIR, exist_ok=True)
