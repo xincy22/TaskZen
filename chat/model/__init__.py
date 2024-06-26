@@ -1,1 +1,1 @@
-from .ChatGLM import ChatGLMClient
+from .ChatGLM import ChatGLMClient, task_generator
