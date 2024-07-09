@@ -65,6 +65,15 @@ class TaskManager:
             tasks = cursor.fetchall()
             return tasks
 
+    def get_task_by_id(self, task_id):
+        with self.conn:
+            cursor = self.conn.execute("""
+                SELECT * FROM tasks
+                WHERE task_id = ?
+            """, (task_id,))
+            task = cursor.fetchone()
+            return task
+
     def __del__(self):
         self.conn.close()
 

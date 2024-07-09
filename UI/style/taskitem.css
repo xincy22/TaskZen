@@ -6,9 +6,9 @@
 }
 
 .TaskItemWidget QLabel {
-    font-size: 18px;
-    color: #333333;
+    font-size: 20px;
     padding: 2px;
+    font-family: "Times New Roman", 楷体;
 }
 
 .TaskItemWidget QLabel#task_name_label {
@@ -16,7 +16,8 @@
 }
 
 .TaskItemWidget QLabel#priority_label {
-    color: #ff0000;  /* Red color for priority label */
+    color: hotpink;
+    font-weight: bold;
 }
 
 .TaskItemWidget QLabel#due_date_label {

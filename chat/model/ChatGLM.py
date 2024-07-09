@@ -26,7 +26,7 @@ class ChatGLMClient:
 
     def chat(self, prompt):
         str_data = self.client.chat.completions.create(
-            model='GLM-4-AirX',
+            model='glm-4-airx',
             messages=[
                 {
                     "role": "system",

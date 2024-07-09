@@ -13,6 +13,7 @@ from taskdb import task_manager
 class InputWindow(QWidget):
     def __init__(self, parent=None):
         super().__init__()
+        self.task_id = None
 
         self.parent = parent
 
@@ -22,7 +23,8 @@ class InputWindow(QWidget):
         self.setWindowFlag(Qt.SplashScreen)
         self.setGeometry(0, 0, 700, 65)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setup_UI()
+        self.setWindowFlag(Qt.WindowStaysOnTopHint)
+        self.load_stylesheet()
 
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -38,8 +40,6 @@ class InputWindow(QWidget):
 
         self.installEventFilter(self)
 
-        self.input_box.returnPressed.connect(self.insert_task)
-
 
     def center(self):
         screen = QDesktopWidget().screenGeometry()
@@ -50,7 +50,7 @@ class InputWindow(QWidget):
             self.hide()
         return super().eventFilter(obj, event)
 
-    def setup_UI(self):
+    def load_stylesheet(self):
         style_file = QFile(INPUT_WINDOW_STYLE_PATH)
         style_file.open(QFile.ReadOnly)
         self.setStyleSheet(style_file.readAll().data().decode())
@@ -61,8 +61,22 @@ class InputWindow(QWidget):
             task_name, priority, due_date = task_generator.chat(user_prompt)
             print(task_name, priority, due_date)
             task_manager.insert_task(task_name, priority, due_date)
-            print("reached.")
         self.parent.load_tasks()
         self.input_box.clear()
         self.hide()
         self.parent.list_widget.clearSelection()
+
+    def edit_task(self):
+        user_prompt = self.input_box.text()
+        if user_prompt:
+            ptask = task_manager.get_task_by_id(self.task_id)
+            task_name, priority, due_date = task_generator.chat(f"""
+            我需要你依据{user_prompt}调整现有的{ptask}任务
+            """)
+            print(task_name, priority, due_date)
+            task_manager.update_task(self.task_id, task_name, priority, due_date)
+        self.parent.load_tasks()
+        self.input_box.clear()
+        self.hide()
+
+
