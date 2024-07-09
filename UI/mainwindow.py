@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
     QMenu,
     QLabel,
     QListWidgetItem,
+    QAction,
 )
 from PyQt5.QtCore import (
     QStringListModel,
@@ -18,17 +19,47 @@ from PyQt5.QtCore import (
 )
 from PyQt5.QtGui import QFont
 from .config import (
-    MAIN_WINDOW_STYLE_PATH, TASKITEM_STYLE_PATH, FONT_PATH
+    MAIN_WINDOW_STYLE_PATH, TASKITEM_STYLE_PATH, MENU_STYLE_PATH,
+    LIST_WIDGET_STYLE_PATH
 )
 from .resizable_frame import ResizableFrame
 from .inputwindow import InputWindow
 from taskdb import task_manager
+from .taskitem import TaskItemWidget
+from .tray_icon import TrayIcon
 
 
 class CustomListWidget(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setMouseTracking(True)
+
+        self.menu = QMenu(self)
+
+        self.info_action = QAction("taskZen 2.0", self)
+        self.info_action.setEnabled(False)
+        self.menu.addAction(self.info_action)
+        self.menu.addAction("添加任务", lambda: self.parent().parent().input_window.show())
+        self.menu.addAction("隐藏到托盘", lambda: self.parent().parent().hide())
+        self.menu.addAction("关闭软件", lambda: self.parent().parent().quit())
+
+        self.load_stylesheet()
+
+    def load_stylesheet(self):
+
+        style_file = QFile(LIST_WIDGET_STYLE_PATH)
+        style_file.open(QFile.ReadOnly)
+        self.setStyleSheet(style_file.readAll().data().decode())
+
+        menu_style_file = QFile(MENU_STYLE_PATH)
+        menu_style_file.open(QFile.ReadOnly)
+        self.menu.setStyleSheet(menu_style_file.readAll().data().decode())
+        self.menu.setWindowFlag(Qt.FramelessWindowHint)
+        self.menu.setWindowFlag(Qt.NoDropShadowWindowHint)
+        self.menu.setAttribute(Qt.WA_TranslucentBackground)
+
+    def contextMenuEvent(self, event):
+        self.menu.exec_(event.globalPos())
 
     def mousePressEvent(self, event):
         self.clearSelection()
@@ -48,50 +79,6 @@ class CustomListWidget(QListWidget):
         super().mouseDoubleClickEvent(event)
 
 
-class TaskItemWidget(QWidget):
-    def __init__(self, task_id, task_name, priority, due_date, parent=None):
-        super().__init__(parent)
-        self.task_id = task_id
-        self.parent = parent
-        self.task_name_label = QLabel(task_name, objectName="task_name_label")
-        self.priority_label = QLabel(priority, objectName="priority_label")
-        self.due_date_label = QLabel(due_date, objectName="due_date_label")
-
-        self.layout = QHBoxLayout()
-        self.layout.addWidget(self.task_name_label, alignment=Qt.AlignCenter)
-        self.layout.addWidget(self.priority_label, alignment=Qt.AlignCenter)
-        self.layout.addWidget(self.due_date_label, alignment=Qt.AlignCenter)
-        self.layout.setContentsMargins(5, 5, 5, 5)
-
-        self.setLayout(self.layout)
-
-        self.setup_UI()
-
-    def set_label_text(self, task_name=None, priority=None, due_date=None):
-        if task_name is not None:
-            self.task_name_label.setText(task_name)
-        if priority is not None:
-            self.priority_label.setText(priority)
-        if due_date is not None:
-            self.due_date_label.setText(due_date)
-
-    def mouseDoubleClickEvent(self, event):
-        task_id = self.task_id
-        task_manager.delete_task(task_id)
-        self.parent.load_tasks()
-        print("reached double clicked event")
-
-    def setup_UI(self):
-        font = QFont(FONT_PATH, 18)
-
-        style_file = QFile(TASKITEM_STYLE_PATH)
-        style_file.open(QFile.ReadOnly)
-        self.setStyleSheet(style_file.readAll().data().decode())
-
-        self.task_name_label.setFont(font)
-        self.priority_label.setFont(font)
-        self.due_date_label.setFont(font)
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -99,7 +86,8 @@ class MainWindow(QMainWindow):
         self.resizable_frame = ResizableFrame(self)
 
         self.setWindowTitle('taskZen - 让任务管理成为一种习惯')
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.SplashScreen)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.SplashScreen | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowOpacity(1)
         self.resize(800, 600)
 
@@ -108,19 +96,26 @@ class MainWindow(QMainWindow):
         self.central_widget.setMouseTracking(True)
         self.setMouseTracking(True)
 
+        self.tray_icon = TrayIcon(self)
+
         self.list_widget = CustomListWidget(self.central_widget)
         self.vertical_layout = QVBoxLayout(self.central_widget)
         self.vertical_layout.addWidget(self.list_widget)
         self.vertical_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.setup_UI()
+        self.load_stylesheet()
 
         self.input_window = InputWindow(self)
+        self.input_window.input_box.returnPressed.connect(self.input_window.insert_task)
         self.input_window.hide()
+
+        self.edit_window = InputWindow(self)
+        self.edit_window.input_box.returnPressed.connect(self.edit_window.edit_task)
+        self.edit_window.hide()
 
         self.load_tasks()
 
-    def setup_UI(self):
+    def load_stylesheet(self):
         style_file = QFile(MAIN_WINDOW_STYLE_PATH)
         style_file.open(QFile.ReadOnly)
         self.setStyleSheet(style_file.readAll().data().decode())
@@ -135,7 +130,6 @@ class MainWindow(QMainWindow):
         self.resizable_frame.mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event):
-        print("reached input window show")
         self.input_window.show()
 
     def load_tasks(self):
@@ -147,3 +141,12 @@ class MainWindow(QMainWindow):
             task_item.setSizeHint(task_widget.sizeHint())
             self.list_widget.addItem(task_item)
             self.list_widget.setItemWidget(task_item, task_widget)
+
+    def edit(self, task_id):
+        self.edit_window.task_id = task_id
+        self.edit_window.show()
+
+    def quit(self):
+        self.tray_icon.hide()
+        self.close()
+        QApplication.quit()
