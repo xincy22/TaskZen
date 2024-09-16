@@ -1,0 +1,25 @@
+.TaskItemWidget {
+    background-color: #f0f0f0;
+    border: 1px solid #cccccc;
+    padding: 5px;
+    margin: 5px;
+}
+
+.TaskItemWidget QLabel {
+    font-size: 20px;
+    padding: 2px;
+    font-family: "Times New Roman", 楷体;
+}
+
+.TaskItemWidget QLabel#task_name_label {
+    font-weight: bold;
+}
+
+.TaskItemWidget QLabel#priority_label {
+    color: hotpink;
+    font-weight: bold;
+}
+
+.TaskItemWidget QLabel#due_date_label {
+    font-weight: bold;
+}

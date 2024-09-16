@@ -1,0 +1,43 @@
+QMenu {
+    background-color: whitesmoke;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    padding: 5px;
+}
+
+QMenu::item {
+    background-color: transparent;
+    padding: 10px 20px;
+    margin: 2px 0;
+    border-radius: 5px;
+    font-size: 18px;
+}
+
+QMenu::item:selected {
+    background-color: #e0e0e0;
+    border-radius: 5px;
+}
+
+QMenu::item:pressed {
+    background-color: #d0d0d0;
+    border-radius: 5px;
+}
+
+QMenu::item:disabled {
+    color: deeppink;
+    font-weight: bold;
+    background-color: transparent;
+    padding: 10px 20px;
+    margin: 2px 0;
+    border-radius: 5px;
+}
+
+QMenu::item:disabled:selected {
+    color: deeppink;
+    font-weight: bold;
+    background-color: transparent;
+    padding: 10px 20px;
+    margin: 2px 0;
+    border-radius: 5px;
+}
+
